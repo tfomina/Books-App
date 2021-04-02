@@ -40,11 +40,10 @@ app.get("/api/books", (req, res) => {
 app.get("/api/books/:id", (req, res) => {
   const { books } = store;
   const { id } = req.params;
-  const idx = books.findIndex((b) => b.id === id);
-  console.log("idx ", idx);
+  const book = books.filter((book) => book.id === id)[0];
 
-  if (idx !== -1) {
-    res.json(books[idx]);
+  if (book) {
+    res.json(book);
   } else {
     res.status(404).json("Not found");
   }

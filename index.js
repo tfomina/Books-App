@@ -114,7 +114,7 @@ app.delete("/api/books/:id", (req, res) => {
 
   if (idx !== -1) {
     books.splice(idx, 1);
-    res.json(books);
+    res.json("Ok");
   } else {
     res.status(404).json("Not found");
   }

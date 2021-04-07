@@ -7,7 +7,8 @@ class Book {
     authors = "",
     favorite = "",
     fileCover = "",
-    fileName = ""
+    fileName = "",
+    fileBook = ""
   ) {
     this.id = nanoid();
     this.title = title;
@@ -16,6 +17,7 @@ class Book {
     this.favorite = favorite;
     this.fileCover = fileCover;
     this.fileName = fileName;
+    this.fileBook = fileBook;
   }
 }
 

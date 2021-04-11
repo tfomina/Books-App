@@ -19,6 +19,10 @@ app.use("/api/books", bookRouter);
 
 app.use(notFoundMiddleware);
 
+app.use((err, req, res, next) => {
+  res.status(500).json({ error: err.toString() });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

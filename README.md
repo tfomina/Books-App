@@ -1,4 +1,4 @@
-# NDSE-Homework-2-1
+# Books App
 
 ### Запуск программы в dev режиме
 

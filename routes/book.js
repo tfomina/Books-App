@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const path = require("path");
 
 const { Book } = require("../models");
 const fileMiddleware = require("../middleware/file");
@@ -30,21 +31,14 @@ router.get("/:id", (req, res) => {
 // создать книгу
 router.post("/", fileMiddleware.single("fileBook"), (req, res) => {
   const { books } = store;
-  const {
-    title,
-    description,
-    authors,
-    favorite,
-    fileCover,
-    fileName,
-  } = req.body;
+  const { title, description, authors, favorite, fileCover } = req.body;
 
-  let fileBook;
+  let fileBook = "",
+    fileName = "";
   if (req.file) {
-    const { path } = req.file;
+    const { path, filename } = req.file;
     fileBook = path;
-  } else {
-    fileBook = null;
+    fileName = filename;
   }
 
   const newBook = new Book(
@@ -65,21 +59,14 @@ router.post("/", fileMiddleware.single("fileBook"), (req, res) => {
 // редактировать книгу по id
 router.put("/:id", fileMiddleware.single("fileBook"), (req, res) => {
   const { books } = store;
-  const {
-    title,
-    description,
-    authors,
-    favorite,
-    fileCover,
-    fileName,
-  } = req.body;
+  const { title, description, authors, favorite, fileCover } = req.body;
 
-  let fileBook;
+  let fileBook = "",
+    fileName = "";
   if (req.file) {
-    const { path } = req.file;
+    const { path, filename } = req.file;
     fileBook = path;
-  } else {
-    fileBook = null;
+    fileName = filename;
   }
 
   const { id } = req.params;
@@ -114,6 +101,22 @@ router.delete("/:id", (req, res) => {
   } else {
     res.status(404).json("Not found");
   }
+});
+
+// скачать книгу по id
+router.get("/:id/download", (req, res) => {
+  const { books } = store;
+  const { id } = req.params;
+
+  const book = books.filter((book) => book.id === id)[0];
+
+  const { fileName, fileBook } = book;
+
+  res.download(path.join(__dirname, "..", fileBook), fileName, (err) => {
+    if (err) {
+      res.status(404).json("Not Found");
+    }
+  });
 });
 
 module.exports = router;

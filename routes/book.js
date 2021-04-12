@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const formData = require("express-form-data");
 
 const { Book } = require("../models");
 const fileMiddleware = require("../middleware/file");
@@ -8,19 +7,6 @@ const fileMiddleware = require("../middleware/file");
 const store = {
   books: [],
 };
-
-for (let i = 1; i < 6; i++) {
-  const newBook = new Book(
-    `Title ${i}`,
-    `Description ${i}`,
-    `Author ${i}`,
-    `Favorite ${i}`,
-    `Filecover ${i}`,
-    `Filename ${i}`,
-    `FileBook ${i}`
-  );
-  store.books.push(newBook);
-}
 
 // получить все книги
 router.get("/", (req, res) => {
@@ -42,7 +28,7 @@ router.get("/:id", (req, res) => {
 });
 
 // создать книгу
-router.post("/", formData.parse(), (req, res) => {
+router.post("/", fileMiddleware.single("fileBook"), (req, res) => {
   const { books } = store;
   const {
     title,
@@ -51,8 +37,15 @@ router.post("/", formData.parse(), (req, res) => {
     favorite,
     fileCover,
     fileName,
-    fileBook,
   } = req.body;
+
+  let fileBook;
+  if (req.file) {
+    const { path } = req.file;
+    fileBook = path;
+  } else {
+    fileBook = null;
+  }
 
   const newBook = new Book(
     title,
@@ -70,7 +63,7 @@ router.post("/", formData.parse(), (req, res) => {
 });
 
 // редактировать книгу по id
-router.put("/:id", formData.parse(), (req, res) => {
+router.put("/:id", fileMiddleware.single("fileBook"), (req, res) => {
   const { books } = store;
   const {
     title,
@@ -79,8 +72,16 @@ router.put("/:id", formData.parse(), (req, res) => {
     favorite,
     fileCover,
     fileName,
-    fileBook,
   } = req.body;
+
+  let fileBook;
+  if (req.file) {
+    const { path } = req.file;
+    fileBook = path;
+  } else {
+    fileBook = null;
+  }
+
   const { id } = req.params;
   const idx = books.findIndex((b) => b.id === id);
 
@@ -112,18 +113,6 @@ router.delete("/:id", (req, res) => {
     res.json("Ok");
   } else {
     res.status(404).json("Not found");
-  }
-});
-
-// загрузка файлов
-router.post("/upload-file", fileMiddleware.single("book-file"), (req, res) => {
-  if (req.file) {
-    const { path } = req.file;
-    console.log(path);
-
-    res.json(path);
-  } else {
-    res.json(null);
   }
 });
 

@@ -6,7 +6,9 @@ const storage = multer.diskStorage({
     cb(null, "public/files");
   },
   filename(req, file, cb) {
-    cb(null, `${nanoid()}-${file.originalname.replace(/\s/g, "-")}`);
+    const { fileName } = req.body;
+    const extention = file.originalname.split(".").pop();
+    cb(null, `${fileName.replace(/\s/g, "-")}-${nanoid()}.${extention}`);
   },
 });
 

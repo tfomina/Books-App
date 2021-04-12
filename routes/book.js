@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const formData = require("express-form-data");
 
 const { Book } = require("../models");
+const fileMiddleware = require("../middleware/file");
 
 const store = {
   books: [],
@@ -40,7 +42,7 @@ router.get("/:id", (req, res) => {
 });
 
 // создать книгу
-router.post("/", (req, res) => {
+router.post("/", formData.parse(), (req, res) => {
   const { books } = store;
   const {
     title,
@@ -68,7 +70,7 @@ router.post("/", (req, res) => {
 });
 
 // редактировать книгу по id
-router.put("/:id", (req, res) => {
+router.put("/:id", formData.parse(), (req, res) => {
   const { books } = store;
   const {
     title,
@@ -110,6 +112,18 @@ router.delete("/:id", (req, res) => {
     res.json("Ok");
   } else {
     res.status(404).json("Not found");
+  }
+});
+
+// загрузка файлов
+router.post("/upload-file", fileMiddleware.single("book-file"), (req, res) => {
+  if (req.file) {
+    const { path } = req.file;
+    console.log(path);
+
+    res.json(path);
+  } else {
+    res.json(null);
   }
 });
 

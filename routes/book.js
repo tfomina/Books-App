@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
+const fs = require("fs");
 
 const { Book } = require("../models");
 const fileMiddleware = require("../middleware/file");
@@ -19,7 +20,7 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   const { books } = store;
   const { id } = req.params;
-  const book = books.filter((book) => book.id === id)[0];
+  const book = books.find((book) => book.id === id);
 
   if (book) {
     res.json(book);
@@ -93,10 +94,20 @@ router.put("/:id", fileMiddleware.single("fileBook"), (req, res) => {
 router.delete("/:id", (req, res) => {
   const { books } = store;
   const { id } = req.params;
-  const idx = books.findIndex((b) => b.id === id);
 
-  if (idx !== -1) {
-    books.splice(idx, 1);
+  const book = books.find((book) => book.id === id);
+
+  if (book) {
+    store.books = store.books.filter((book) => book.id !== id);
+
+    try {
+      const { fileBook } = book;
+
+      fs.unlinkSync(fileBook);
+    } catch (err) {
+      throw new Error(`Ошибка при удалении книги: ${err}`);
+    }
+
     res.json("Ok");
   } else {
     res.status(404).json("Not found");

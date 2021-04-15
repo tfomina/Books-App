@@ -143,7 +143,7 @@ router.post("/delete/:id", (req, res) => {
 
     res.redirect("/books");
   } else {
-    res.status(404).redirect("404");
+    res.status(404).redirect("/404");
   }
 });
 
@@ -158,7 +158,7 @@ router.get("/:id/download", (req, res) => {
 
   res.download(path.join(__dirname, "..", fileBook), fileName, (err) => {
     if (err) {
-      res.status(404).json("Not Found");
+      res.status(404).redirect("/404");
     }
   });
 });

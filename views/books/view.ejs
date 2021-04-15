@@ -10,7 +10,7 @@
               <h5 class="card-title"><%= book.title %></h5>
               <h6 class="card-subtitle mb-2 text-muted"><%= book.authors %></h6>
               <p class="card-text"><%= book.description %></p>              
-              <p class="card-text">Ссылка для скачивания: <a href="<%= book.fileBook %>" class="card-link"><%= book.fileName %></a></p>
+              <p class="card-text">Ссылка для скачивания: <a href="/<%= book.fileBook %>" class="card-link"><%= book.fileName %></a></p>
               <div class="text-start">
                 <a class="btn btn-primary" href="/books/update/<%= book.id %>" title="Редактировать">
                     <i class="bi bi-pencil" aria-hidden="true"></i>

@@ -11,7 +11,7 @@
               <h6 class="card-subtitle mb-2 text-muted"><%= book.authors %></h6>
               <p class="card-text"><%= book.description %></p>              
               <p class="card-text">Ссылка для скачивания: <a href="/<%= book.fileBook %>" class="card-link"><%= book.fileName %></a></p>
-              <div class="text-start">
+              <div class="text-end">
                 <a class="btn btn-primary" href="/books/update/<%= book.id %>" title="Редактировать">
                     <i class="bi bi-pencil" aria-hidden="true"></i>
                 </a>

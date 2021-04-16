@@ -29,13 +29,8 @@ const generateData = () => {
       fileBook = "";
 
     try {
-      fileName = `${title.replace(/\s/g, "-")}-${nanoid()}`;
-      const filePath = path.join(
-        __dirname,
-        "public",
-        "files",
-        `${fileName}.txt`
-      );
+      fileName = `${title.replace(/\s/g, "-")}-${nanoid()}.txt`;
+      const filePath = path.join(__dirname, "public", "files", `${fileName}`);
       fileBook = path.join("public", "files", fileName);
       fs.writeFileSync(filePath, "Тест!");
     } catch (err) {

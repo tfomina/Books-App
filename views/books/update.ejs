@@ -1,0 +1,12 @@
+<%- include("../partials/layout-start", {title: title}) %> <%-
+include("../partials/menu") %>
+
+<div class="row">
+  <div class="col">
+    <h1><%- title %></h1>
+
+    <%- include("form", {book: book}) %>
+  </div>
+</div>
+
+<%- include("../partials/layout-end") %>

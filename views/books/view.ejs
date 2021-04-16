@@ -1,0 +1,42 @@
+<%- include("../partials/layout-start", {title: title}) %> <%-
+include("../partials/menu") %>
+
+<div class="row">
+  <div class="col">
+    <h1><%- title %></h1>
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title"><%= book.title %></h5>
+        <h6 class="card-subtitle mb-2 text-muted"><%= book.authors %></h6>
+        <p class="card-text"><%= book.description %></p>
+        <p class="card-text">
+          Ссылка для скачивания:
+          <a href="/<%= book.fileBook %>" class="card-link"
+            ><%= book.fileName %></a
+          >
+        </p>
+        <div class="text-end">
+          <a
+            class="btn btn-primary"
+            href="/books/update/<%= book.id %>"
+            title="Редактировать"
+          >
+            <i class="bi bi-pencil" aria-hidden="true"></i>
+          </a>
+          <form
+            action="/books/delete/<%= book.id %>"
+            method="POST"
+            class="d-inline"
+          >
+            <button class="btn btn-danger" title="Удалить">
+              <i class="bi bi-trash" aria-hidden="true"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include("../partials/layout-end") %>

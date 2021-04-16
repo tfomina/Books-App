@@ -2,28 +2,35 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const fs = require("fs");
-const generateData = require("../mockData");
 
-const { Book } = require("../models");
-const fileMiddleware = require("../middleware/file");
+const { Book } = require("../../models");
+const fileMiddleware = require("../../middleware/file");
 
 const store = {
-  books: generateData(),
+  books: [],
 };
 
 // получить все книги
 router.get("/", (req, res) => {
   const { books } = store;
-  res.render("books/index", { title: "Книги", books: books });
+  res.json(books);
 });
 
-// открыть форму создания книги
-router.get("/create", (req, res) => {
-  res.render("books/create", { title: "Создание книги", book: {} });
+// получить книгу по id
+router.get("/:id", (req, res) => {
+  const { books } = store;
+  const { id } = req.params;
+  const book = books.find((book) => book.id === id);
+
+  if (book) {
+    res.json(book);
+  } else {
+    res.status(404).json("Not found");
+  }
 });
 
-// сохранить книгу
-router.post("/create", fileMiddleware.single("fileBook"), (req, res) => {
+// создать книгу
+router.post("/", fileMiddleware.single("fileBook"), (req, res) => {
   const { books } = store;
   const { title, description, authors, favorite, fileCover } = req.body;
 
@@ -47,38 +54,11 @@ router.post("/create", fileMiddleware.single("fileBook"), (req, res) => {
 
   books.push(newBook);
 
-  res.redirect("/books");
-});
-
-// получить книгу по id
-router.get("/:id", (req, res) => {
-  const { books } = store;
-  const { id } = req.params;
-  const book = books.find((book) => book.id === id);
-
-  if (book) {
-    res.render("books/view", { title: "Просмотр книги", book: book });
-  } else {
-    res.status(404).redirect("/404");
-  }
-});
-
-// получить книгу по id для редактирования
-router.get("/update/:id", (req, res) => {
-  const { books } = store;
-  const { id } = req.params;
-  const book = books.find((book) => book.id === id);
-
-  if (book) {
-    res.render("books/update", { title: "Редактирование книги", book: book });
-  } else {
-    res.status(404).redirect("/404");
-  }
+  res.status(201).json(newBook);
 });
 
 // редактировать книгу по id
-router.post("/update/:id", fileMiddleware.single("fileBook"), (req, res) => {
-  console.log("req ", req);
+router.put("/:id", fileMiddleware.single("fileBook"), (req, res) => {
   const { books } = store;
   const { title, description, authors, favorite, fileCover } = req.body;
 
@@ -104,14 +84,14 @@ router.post("/update/:id", fileMiddleware.single("fileBook"), (req, res) => {
       fileName,
       fileBook,
     };
-    res.redirect(`/books/${id}`);
+    res.json(books[idx]);
   } else {
-    res.status(404).redirect("/404");
+    res.status(404).json("Not found");
   }
 });
 
 // удалить книгу по id
-router.post("/delete/:id", (req, res) => {
+router.delete("/:id", (req, res) => {
   const { books } = store;
   const { id } = req.params;
 
@@ -128,9 +108,9 @@ router.post("/delete/:id", (req, res) => {
       throw new Error(`Ошибка при удалении книги: ${err}`);
     }
 
-    res.redirect("/books");
+    res.json("Ok");
   } else {
-    res.status(404).redirect("/404");
+    res.status(404).json("Not found");
   }
 });
 
@@ -145,7 +125,7 @@ router.get("/:id/download", (req, res) => {
 
   res.download(path.join(__dirname, "..", fileBook), fileName, (err) => {
     if (err) {
-      res.status(404).redirect("/404");
+      res.status(404).json("Not Found");
     }
   });
 });

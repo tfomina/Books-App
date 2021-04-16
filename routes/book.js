@@ -2,27 +2,14 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const fs = require("fs");
+const generateData = require("../mockData");
 
 const { Book } = require("../models");
 const fileMiddleware = require("../middleware/file");
 
 const store = {
-  books: [],
+  books: generateData(),
 };
-
-// TODO Удалить
-for (let i = 1; i < 6; i++) {
-  const newBook = new Book(
-    `Title ${i}`,
-    `Description ${i}`,
-    `Author ${i}`,
-    `Favorite ${i}`,
-    `Filecover ${i}`,
-    `Filename ${i}`,
-    `FileBook ${i}`
-  );
-  store.books.push(newBook);
-}
 
 // получить все книги
 router.get("/", (req, res) => {
@@ -136,7 +123,7 @@ router.post("/delete/:id", (req, res) => {
     try {
       const { fileBook } = book;
 
-      //fs.unlinkSync(fileBook); //TODO раскомментировать
+      fs.unlinkSync(fileBook);
     } catch (err) {
       throw new Error(`Ошибка при удалении книги: ${err}`);
     }

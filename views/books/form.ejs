@@ -1,28 +1,55 @@
 <form method="POST" enctype="multipart/form-data">
-    <div class="mb-3">
-      <label for="title" class="form-label">Название книги</label>
-      <input type="text" class="form-control" id="title" name="title" required value="<%= book.title %>">     
-    </div>
+  <div class="mb-3">
+    <label for="title" class="form-label">Название книги</label>
+    <input
+      type="text"
+      class="form-control"
+      id="title"
+      name="title"
+      required
+      value="<%= book.title %>"
+    />
+  </div>
 
-    <div class="mb-3">
-        <label for="description" class="form-label">Описание</label>
-        <textarea class="form-control" id="description" name="description" rows="3"><%= book.description %></textarea>
-      </div>
+  <div class="mb-3">
+    <label for="description" class="form-label">Описание</label>
+    <textarea class="form-control" id="description" name="description" rows="3">
+<%= book.description %></textarea
+    >
+  </div>
 
-      <div class="mb-3">
-        <label for="authors" class="form-label">Автор(ы)</label>
-        <input type="text" class="form-control" id="authors" name="authors" value="<%= book.authors %>">     
-      </div>
+  <div class="mb-3">
+    <label for="authors" class="form-label">Автор(ы)</label>
+    <input
+      type="text"
+      class="form-control"
+      id="authors"
+      name="authors"
+      value="<%= book.authors %>"
+    />
+  </div>
 
-      <div class="mb-3">
-        <label for="fileName" class="form-label">Имя файла</label>
-        <input type="text" class="form-control" id="fileName" name="fileName" value="<%= book.fileName %>">     
-      </div>
+  <div class="mb-3">
+    <label for="fileName" class="form-label">Имя файла</label>
+    <input
+      type="text"
+      class="form-control"
+      id="fileName"
+      name="fileName"
+      value="<%= book.fileName %>"
+    />
+  </div>
 
-      <div class="mb-3">
-        <label for="fileBook" class="form-label">Файл</label>
-        <input class="form-control" type="file" id="fileBook" name="fileBook" value="<%= book.fileBook %>">
-      </div>
-      
-    <button type="submit" class="btn btn-primary">Сохранить</button>
-  </form>
+  <div class="mb-3">
+    <label for="fileBook" class="form-label">Файл</label>
+    <input
+      class="form-control"
+      type="file"
+      id="fileBook"
+      name="fileBook"
+      value="<%= book.fileBook %>"
+    />
+  </div>
+
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { nanoid } = require("nanoid");
-const { Book } = require("./models");
+const { Book } = require("./src/models");
 
 const TITLES = [
   "Lorem ipsum dolor sit amet",

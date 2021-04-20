@@ -3,12 +3,12 @@ const expressLayouts = require("express-ejs-layouts");
 const cors = require("cors");
 const path = require("path");
 
-const notFoundMiddleware = require("./middleware/notFound");
+const notFoundMiddleware = require("./src/middleware/notFound");
 
-const indexRouter = require("./routes");
-const userApiRouter = require("./routes/api/user");
-const bookApiRouter = require("./routes/api/book");
-const bookRouter = require("./routes/book");
+const indexRouter = require("./src/routes");
+const userApiRouter = require("./src/routes/api/user");
+const bookApiRouter = require("./src/routes/api/book");
+const bookRouter = require("./src/routes/book");
 
 const app = express();
 
@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(expressLayouts);
 app.set("layout", "./layouts/index");
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "src", "views"));
 
 app.use(cors());
 

@@ -6,8 +6,7 @@ const path = require("path");
 const notFoundMiddleware = require("./src/middleware/notFound");
 
 const indexRouter = require("./src/routes");
-const userApiRouter = require("./src/routes/api/user");
-const bookApiRouter = require("./src/routes/api/book");
+const userRouter = require("./src/routes/user");
 const bookRouter = require("./src/routes/book");
 
 const app = express();
@@ -25,8 +24,7 @@ app.use(cors());
 app.use("/public", express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/api/user", userApiRouter);
-app.use("/api/books", bookApiRouter);
+app.use("/user", userRouter);
 app.use("/books", bookRouter);
 
 app.use(notFoundMiddleware);

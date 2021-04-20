@@ -1,11 +1,10 @@
-FROM node:lts as node
-
+FROM node:alpine
 WORKDIR /app
 
-COPY src/package*.json ./
+COPY package*.json /app/
 RUN npm install
-COPY src/ ./
+COPY . /app/
 
 EXPOSE 3000
 
-CMD ["node", "index.js"]
+CMD ["npm", "run", "start"]

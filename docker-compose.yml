@@ -1,0 +1,22 @@
+# docker-compose.yml
+version: "3.8"
+
+services:
+  storage:
+    image: redis
+
+  books-app:
+    build: .
+    ports:
+      - 80:3000
+
+  counter:
+    image: tfomina/view-counter-app
+    ports:
+      - 3000:3000
+    environment:
+      PORT: 3000
+      STORAGE_URL: storage
+    depends_on:
+      - books-app
+      - storage

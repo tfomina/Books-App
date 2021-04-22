@@ -2,21 +2,35 @@
 version: "3.8"
 
 services:
-  storage:
-    image: redis
-
   books-app:
     build: .
-    ports:
-      - 80:3000
-
-  counter:
-    image: tfomina/view-counter-app
+    restart: always
+    expose:
+      - 3000
     ports:
       - 3000:3000
+    links:
+      - "counter-app"
     environment:
-      PORT: 3000
-      STORAGE_URL: storage
-    depends_on:
-      - books-app
-      - storage
+      - COUNTER_SERVER_HOST=counter-app
+      - COUNTER_SERVER_PORT=3001
+    networks:
+      - my-network
+
+  counter-app:
+    image: tfomina/view-counter-app:latest
+    restart: always
+    expose:
+      - 3001
+    ports:
+      - 3001:3000
+    environment:
+      PORT: 3001
+      STORAGE_FOLDER: storage
+    volumes:
+      - C:\counter-storage:/app/storage
+    networks:
+      - my-network
+
+networks:
+  my-network:

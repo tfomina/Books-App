@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const fs = require("fs");
+const axios = require("axios");
 const generateData = require("../../mockData");
 
 const { Book } = require("../models");
@@ -51,13 +52,29 @@ router.post("/create", fileMiddleware.single("fileBook"), (req, res) => {
 });
 
 // получить книгу по id
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   const { books } = store;
   const { id } = req.params;
   const book = books.find((book) => book.id === id);
 
+  let counter;
+
   if (book) {
-    res.render("books/view", { title: "Просмотр книги", book: book });
+    try {
+      const baseUrl = `http://${process.env.COUNTER_SERVER_HOST}:${process.env.COUNTER_SERVER_PORT}/counter/`;
+
+      await axios.post(`${baseUrl}/${book.id}/incr`); // добавить +1 к счетчику
+      const response = await axios.get(`${baseUrl}/${book.id}`); // получить счетчик
+      counter = response.data?.counter;
+    } catch (e) {
+      console.log(e);
+    }
+
+    res.render("books/view", {
+      title: "Просмотр книги",
+      book: book,
+      counter: counter,
+    });
   } else {
     res.status(404).redirect("/404");
   }

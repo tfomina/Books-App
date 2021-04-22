@@ -141,7 +141,9 @@ router.post("/delete/:id", async (req, res) => {
     const { fileBook } = book;
 
     // удаление файла книги
-    fs.unlinkSync(fileBook);
+    if (fileBook) {
+      fs.unlinkSync(fileBook);
+    }
 
     // удаление записи из БД
     await Book.deleteOne({ _id: id });

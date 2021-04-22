@@ -2,6 +2,32 @@
 version: "3.8"
 
 services:
+  mongodb:
+    image: mongo
+    restart: always
+    expose:
+      - 27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME:-root}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD:-password}
+      - MONGO_INITDB_DATABASE=${DB_NAME:-books_database}
+    networks:
+      - my-network
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${DB_USERNAME:-root}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${DB_PASSWORD:-password}
+    depends_on:
+      - mongodb
+    networks:
+      - my-network
+
   books-app:
     build: .
     restart: always
@@ -12,8 +38,15 @@ services:
     links:
       - "counter-app"
     environment:
+      - PORT=3000
       - COUNTER_SERVER_HOST=counter-app
       - COUNTER_SERVER_PORT=3001
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_NAME=${DB_NAME:-books_database}
+      - DB_HOST=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
     networks:
       - my-network
 

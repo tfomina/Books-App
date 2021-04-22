@@ -24,7 +24,7 @@ docker build . -t books-app
 docker run --rm -p 3000:3000 books-app
 ```
 
-**Запустить вместе со счетчиком через docker-compose**
+**Запустить вместе с базой данных и со счетчиком просомтра книг через docker-compose**
 
 ```
 docker-compose up --build

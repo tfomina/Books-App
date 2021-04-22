@@ -3,19 +3,19 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
-const generateData = require("../../mockData");
 
 const { Book } = require("../models");
 const fileMiddleware = require("../middleware/file");
 
-const store = {
-  books: generateData(),
-};
-
 // получить все книги
-router.get("/", (req, res) => {
-  const { books } = store;
-  res.render("books/index", { title: "Книги", books: books });
+router.get("/", async (req, res) => {
+  try {
+    const books = await Book.find();
+    res.render("books/index", { title: "Книги", books: books });
+  } catch (err) {
+    console.log(err);
+    res.status(404).redirect("/404");
+  }
 });
 
 // открыть форму создания книги
@@ -24,9 +24,10 @@ router.get("/create", (req, res) => {
 });
 
 // сохранить книгу
-router.post("/create", fileMiddleware.single("fileBook"), (req, res) => {
-  const { books } = store;
+router.post("/create", fileMiddleware.single("fileBook"), async (req, res) => {
   const { title, description, authors, favorite, fileCover } = req.body;
+
+  console.log("req.file ", req.file);
 
   let fileBook = "",
     fileName = "";
@@ -36,28 +37,40 @@ router.post("/create", fileMiddleware.single("fileBook"), (req, res) => {
     fileName = filename;
   }
 
-  const newBook = new Book(
+  console.log("fileName ", fileName);
+  console.log("fileBook ", fileBook);
+
+  const newBook = new Book({
     title,
     description,
     authors,
     favorite,
     fileCover,
     fileName,
-    fileBook
-  );
+    fileBook,
+  });
 
-  books.push(newBook);
+  console.log("newBook ", newBook);
 
-  res.redirect("/books");
+  try {
+    await newBook.save();
+    res.redirect("/books");
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 // получить книгу по id
 router.get("/:id", async (req, res) => {
-  const { books } = store;
   const { id } = req.params;
-  const book = books.find((book) => book.id === id);
+  let book, counter;
 
-  let counter;
+  try {
+    book = await Book.findById(id);
+  } catch (err) {
+    console.log(err);
+    res.status(404).redirect("/404");
+  }
 
   if (book) {
     try {
@@ -69,102 +82,103 @@ router.get("/:id", async (req, res) => {
     } catch (e) {
       console.log(e);
     }
-
-    res.render("books/view", {
-      title: "Просмотр книги",
-      book: book,
-      counter: counter,
-    });
-  } else {
-    res.status(404).redirect("/404");
   }
+
+  res.render("books/view", {
+    title: "Просмотр книги",
+    book: book,
+    counter: counter,
+  });
 });
 
 // получить книгу по id для редактирования
-router.get("/update/:id", (req, res) => {
-  const { books } = store;
+router.get("/update/:id", async (req, res) => {
   const { id } = req.params;
-  const book = books.find((book) => book.id === id);
+  let book;
 
-  if (book) {
+  try {
+    book = await Book.findById(id);
     res.render("books/update", { title: "Редактирование книги", book: book });
-  } else {
+  } catch (err) {
+    console.log(err);
     res.status(404).redirect("/404");
   }
 });
 
 // редактировать книгу по id
-router.post("/update/:id", fileMiddleware.single("fileBook"), (req, res) => {
-  console.log("req ", req);
-  const { books } = store;
-  const { title, description, authors, favorite, fileCover } = req.body;
+router.post(
+  "/update/:id",
+  fileMiddleware.single("fileBook"),
+  async (req, res) => {
+    const { id } = req.params;
+    const { title, description, authors, favorite, fileCover } = req.body;
 
-  let fileBook = "",
-    fileName = "";
-  if (req.file) {
-    const { path, filename } = req.file;
-    fileBook = path;
-    fileName = filename;
-  }
-
-  const { id } = req.params;
-  const idx = books.findIndex((b) => b.id === id);
-
-  if (idx !== -1) {
-    books[idx] = {
-      ...books[idx],
-      title,
-      description,
-      authors,
-      favorite,
-      fileCover,
-      fileName,
-      fileBook,
-    };
-    res.redirect(`/books/${id}`);
-  } else {
-    res.status(404).redirect("/404");
-  }
-});
-
-// удалить книгу по id
-router.post("/delete/:id", (req, res) => {
-  const { books } = store;
-  const { id } = req.params;
-
-  const book = books.find((book) => book.id === id);
-
-  if (book) {
-    store.books = store.books.filter((book) => book.id !== id);
-
-    try {
-      const { fileBook } = book;
-
-      fs.unlinkSync(fileBook);
-    } catch (err) {
-      throw new Error(`Ошибка при удалении книги: ${err}`);
+    let fileBook = "",
+      fileName = "";
+    if (req.file) {
+      const { path, filename } = req.file;
+      fileBook = path;
+      fileName = filename;
     }
 
-    res.redirect("/books");
-  } else {
+    try {
+      await Book.findByIdAndUpdate(id, {
+        title,
+        description,
+        authors,
+        favorite,
+        fileCover,
+        fileName,
+        fileBook,
+      });
+      res.redirect(`/books/${id}`);
+    } catch (err) {
+      console.log(err);
+      res.status(404).redirect("/404");
+    }
+  }
+);
+
+// удалить книгу по id
+router.post("/delete/:id", async (req, res) => {
+  const { id } = req.params;
+
+  // удаление файла книги
+  try {
+    const book = await Book.findById(id);
+    const { fileBook } = book;
+    fs.unlinkSync(fileBook);
+  } catch (err) {
+    console.log(err);
+    res.status(404).redirect("/404");
+  }
+
+  // удаление записи из БД
+  try {
+    await Book.deleteOne({ _id: id });
+  } catch (err) {
+    console.log(err);
     res.status(404).redirect("/404");
   }
 });
 
 // скачать книгу по id
-router.get("/:id/download", (req, res) => {
-  const { books } = store;
+router.get("/:id/download", async (req, res) => {
   const { id } = req.params;
 
-  const book = books.filter((book) => book.id === id)[0];
+  try {
+    const book = await Book.findById(id);
+    const { fileBook } = book;
 
-  const { fileName, fileBook } = book;
-
-  res.download(path.join(__dirname, "..", fileBook), fileName, (err) => {
-    if (err) {
-      res.status(404).redirect("/404");
-    }
-  });
+    res.download(path.join(__dirname, "..", fileBook), fileName, (err) => {
+      if (err) {
+        res.status(404).redirect("/404");
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(404).redirect("/404");
+  }
 });
 
 module.exports = router;

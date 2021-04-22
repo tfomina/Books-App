@@ -10,7 +10,7 @@ const fileMiddleware = require("../middleware/file");
 // получить все книги
 router.get("/", async (req, res) => {
   try {
-    const books = await Book.find();
+    const books = await Book.find().select("_id, title");
     res.render("books/index", { title: "Книги", books: books });
   } catch (err) {
     console.log(err);
@@ -27,8 +27,6 @@ router.get("/create", (req, res) => {
 router.post("/create", fileMiddleware.single("fileBook"), async (req, res) => {
   const { title, description, authors, favorite, fileCover } = req.body;
 
-  console.log("req.file ", req.file);
-
   let fileBook = "",
     fileName = "";
   if (req.file) {
@@ -36,9 +34,6 @@ router.post("/create", fileMiddleware.single("fileBook"), async (req, res) => {
     fileBook = path;
     fileName = filename;
   }
-
-  console.log("fileName ", fileName);
-  console.log("fileBook ", fileBook);
 
   const newBook = new Book({
     title,
@@ -49,8 +44,6 @@ router.post("/create", fileMiddleware.single("fileBook"), async (req, res) => {
     fileName,
     fileBook,
   });
-
-  console.log("newBook ", newBook);
 
   try {
     await newBook.save();
@@ -143,19 +136,17 @@ router.post(
 router.post("/delete/:id", async (req, res) => {
   const { id } = req.params;
 
-  // удаление файла книги
   try {
     const book = await Book.findById(id);
     const { fileBook } = book;
-    fs.unlinkSync(fileBook);
-  } catch (err) {
-    console.log(err);
-    res.status(404).redirect("/404");
-  }
 
-  // удаление записи из БД
-  try {
+    // удаление файла книги
+    fs.unlinkSync(fileBook);
+
+    // удаление записи из БД
     await Book.deleteOne({ _id: id });
+
+    res.redirect("/books");
   } catch (err) {
     console.log(err);
     res.status(404).redirect("/404");

@@ -9,13 +9,15 @@ const fileMiddleware = require("../middleware/file");
 
 // получить все книги
 router.get("/", async (req, res) => {
+  let books;
+
   try {
-    const books = await Book.find().select("_id, title");
-    res.render("books/index", { title: "Книги", books: books });
+    books = await Book.find().select("_id, title");
   } catch (err) {
     console.log(err);
-    res.status(404).redirect("/404");
   }
+
+  res.render("books/index", { title: "Книги", books: books });
 });
 
 // открыть форму создания книги
@@ -62,7 +64,6 @@ router.get("/:id", async (req, res) => {
     book = await Book.findById(id);
   } catch (err) {
     console.log(err);
-    res.status(404).redirect("/404");
   }
 
   if (book) {
@@ -72,16 +73,18 @@ router.get("/:id", async (req, res) => {
       await axios.post(`${baseUrl}/${book.id}/incr`); // добавить +1 к счетчику
       const response = await axios.get(`${baseUrl}/${book.id}`); // получить счетчик
       counter = response.data?.counter;
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      console.log(err);
     }
-  }
 
-  res.render("books/view", {
-    title: "Просмотр книги",
-    book: book,
-    counter: counter,
-  });
+    res.render("books/view", {
+      title: "Просмотр книги",
+      book: book,
+      counter: counter,
+    });
+  } else {
+    res.status(404).redirect("/404");
+  }
 });
 
 // получить книгу по id для редактирования
@@ -91,9 +94,13 @@ router.get("/update/:id", async (req, res) => {
 
   try {
     book = await Book.findById(id);
-    res.render("books/update", { title: "Редактирование книги", book: book });
   } catch (err) {
     console.log(err);
+  }
+
+  if (book) {
+    res.render("books/update", { title: "Редактирование книги", book: book });
+  } else {
     res.status(404).redirect("/404");
   }
 });
@@ -136,21 +143,35 @@ router.post(
 router.post("/delete/:id", async (req, res) => {
   const { id } = req.params;
 
+  let book;
+
   try {
-    const book = await Book.findById(id);
+    book = await Book.findById(id);
+  } catch (err) {
+    console.log(err);
+  }
+
+  if (book) {
+    // удаление файла книги
     const { fileBook } = book;
 
-    // удаление файла книги
     if (fileBook) {
-      fs.unlinkSync(fileBook);
+      try {
+        fs.unlinkSync(fileBook);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     // удаление записи из БД
-    await Book.deleteOne({ _id: id });
+    try {
+      await Book.deleteOne({ _id: id });
+    } catch (err) {
+      console.error(err);
+    }
 
     res.redirect("/books");
-  } catch (err) {
-    console.log(err);
+  } else {
     res.status(404).redirect("/404");
   }
 });
@@ -159,17 +180,28 @@ router.post("/delete/:id", async (req, res) => {
 router.get("/:id/download", async (req, res) => {
   const { id } = req.params;
 
-  try {
-    const book = await Book.findById(id);
-    const { fileBook } = book;
+  let book;
 
-    res.download(path.join(__dirname, "..", fileBook), fileName, (err) => {
-      if (err) {
-        res.status(404).redirect("/404");
-      }
-    });
+  try {
+    book = await Book.findById(id);
   } catch (err) {
     console.log(err);
+  }
+
+  if (book) {
+    const { fileBook, fileName } = book;
+
+    res.download(
+      path.join(__dirname, "..", "..", fileBook),
+      fileName,
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.redirect(`/books/${book.id}`);
+        }
+      }
+    );
+  } else {
     res.status(404).redirect("/404");
   }
 });

@@ -32,18 +32,25 @@ app.use(notFoundMiddleware);
 
 const PORT = process.env.PORT || 3000;
 const UserDB = process.env.DB_USERNAME || "root";
-const PasswordDB = process.env.DB_PASSWORD || "qwerty12345";
+const PasswordDB = process.env.DB_PASSWORD || "AXRHV]cy?s/4UkZ";
 const NameDB = process.env.DB_NAME || "books_database";
 const HostDB = process.env.DB_HOST || "mongodb://localhost:27017/";
 async function start() {
   try {
-    await mongoose.connect(HostDB, {
+    const UrlDB = `mongodb+srv://${UserDB}:${PasswordDB}@cluster0.m4q9c.mongodb.net/${NameDB}?retryWrites=true&w=majority`;
+    await mongoose.connect(encodeURI(UrlDB), {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // Подключение в Docker контейнере
+    /*await mongoose.connect(HostDB, {
       user: UserDB,
       pass: PasswordDB,
       dbName: NameDB,
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    });
+    });*/
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

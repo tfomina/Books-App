@@ -2,6 +2,7 @@ const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const cors = require("cors");
 const path = require("path");
+const mongoose = require("mongoose");
 
 const notFoundMiddleware = require("./src/middleware/notFound");
 
@@ -30,6 +31,33 @@ app.use("/books", bookRouter);
 app.use(notFoundMiddleware);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const UserDB = process.env.DB_USERNAME || "root";
+const PasswordDB = process.env.DB_PASSWORD || "AXRHV]cy?s/4UkZ";
+const NameDB = process.env.DB_NAME || "books_database";
+const HostDB = process.env.DB_HOST || "mongodb://localhost:27017/";
+async function start() {
+  try {
+    const UrlDB = `mongodb+srv://${UserDB}:${PasswordDB}@cluster0.m4q9c.mongodb.net/${NameDB}?retryWrites=true&w=majority`;
+    await mongoose.connect(encodeURI(UrlDB), {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // Подключение в Docker контейнере
+    /*await mongoose.connect(HostDB, {
+      user: UserDB,
+      pass: PasswordDB,
+      dbName: NameDB,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });*/
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+start();

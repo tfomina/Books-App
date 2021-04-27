@@ -1,24 +1,19 @@
-const { nanoid } = require("nanoid");
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-class Book {
-  constructor(
-    title = "",
-    description = "",
-    authors = "",
-    favorite = "",
-    fileCover = "",
-    fileName = "",
-    fileBook = ""
-  ) {
-    this.id = nanoid();
-    this.title = title;
-    this.description = description;
-    this.authors = authors;
-    this.favorite = favorite;
-    this.fileCover = fileCover;
-    this.fileName = fileName;
-    this.fileBook = fileBook;
-  }
-}
+const BookSchema = new Schema({
+  title: {
+    type: String,
+    required: [true, "Название обязательно"],
+  },
+  description: String,
+  authors: String,
+  favorite: String,
+  fileCover: String,
+  fileName: String,
+  fileBook: String,
+});
+
+const Book = mongoose.model("Book", BookSchema);
 
 module.exports = Book;

@@ -35,7 +35,7 @@ const UserDB = process.env.DB_USERNAME || "root";
 const PasswordDB = process.env.DB_PASSWORD || "AXRHV]cy?s/4UkZ";
 const NameDB = process.env.DB_NAME || "books_database";
 const HostDB = process.env.DB_HOST || "mongodb://localhost:27017/";
-async function start() {
+const start = async () => {
   try {
     const UrlDB = `mongodb+srv://${UserDB}:${PasswordDB}@cluster0.m4q9c.mongodb.net/${NameDB}?retryWrites=true&w=majority`;
     await mongoose.connect(encodeURI(UrlDB), {
@@ -58,6 +58,6 @@ async function start() {
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 start();

@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
-const fs = require("fs");
 const axios = require("axios");
 
 const { Book } = require("../models");
 const fileMiddleware = require("../middleware/file");
+const { deleteFileFromDisk } = require("../helper");
 
 // получить все книги
 router.get("/", async (req, res) => {
@@ -37,7 +37,7 @@ router.post("/create", fileMiddleware.single("fileBook"), async (req, res) => {
     fileName = filename;
   }
 
-  const newBook = new Book({
+  const book = new Book({
     title,
     description,
     authors,
@@ -48,10 +48,11 @@ router.post("/create", fileMiddleware.single("fileBook"), async (req, res) => {
   });
 
   try {
-    await newBook.save();
+    await book.save();
     res.redirect("/books");
   } catch (err) {
     console.log(err);
+    deleteFileFromDisk(fileBook);
   }
 });
 
@@ -134,6 +135,7 @@ router.post(
       res.redirect(`/books/${id}`);
     } catch (err) {
       console.log(err);
+      deleteFileFromDisk(fileBook);
       res.status(404).redirect("/404");
     }
   }
@@ -154,14 +156,7 @@ router.post("/delete/:id", async (req, res) => {
   if (book) {
     // удаление файла книги
     const { fileBook } = book;
-
-    if (fileBook) {
-      try {
-        fs.unlinkSync(fileBook);
-      } catch (err) {
-        console.error(err);
-      }
-    }
+    deleteFileFromDisk(fileBook);
 
     // удаление записи из БД
     try {

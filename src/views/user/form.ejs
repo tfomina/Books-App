@@ -1,5 +1,6 @@
 <form method="POST">
   <div class="mb-3">
+    <% if(isRegisterForm){ %>
     <label for="name" class="form-label">Имя пользователя</label>
     <input
       type="text"
@@ -10,6 +11,7 @@
       value="<%= user.name %>"
     />
   </div>
+  <% } %>
 
   <div class="mb-3">
     <label for="email" class="form-label">Email</label>

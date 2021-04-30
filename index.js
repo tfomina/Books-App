@@ -40,6 +40,7 @@ const start = async () => {
   try {
     const UrlDB = `mongodb+srv://${UserDB}:${PasswordDB}@cluster0.m4q9c.mongodb.net/${NameDB}?retryWrites=true&w=majority`;
     await mongoose.connect(encodeURI(UrlDB), {
+      useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

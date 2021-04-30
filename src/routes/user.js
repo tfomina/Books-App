@@ -16,9 +16,8 @@ router.get("/register", (req, res) => {
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
-  let candidate;
   try {
-    candidate = await User.findOne({ email });
+    const candidate = await User.findOne({ email });
 
     if (candidate) {
       res.send(`Email ${email} уже занят`);

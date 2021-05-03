@@ -20,12 +20,22 @@
         <li class="nav-item">
           <a class="nav-link" href="/books">Книги</a>
         </li>
-        <li class="nav-item ms-lg-auto">
-          <a class="nav-link" href="/user/login">Вход</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/user/register">Регистрация</a>
-        </li>
+
+        <% if(false){ %>
+          <li class="nav-item ms-lg-auto">
+            <a class="nav-link" href="/user/profile">Профиль</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/user/logout">Выход</a>
+          </li>
+        <% } else { %>  
+          <li class="nav-item ms-lg-auto">
+            <a class="nav-link" href="/user/login">Вход</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/user/register">Регистрация</a>
+          </li>
+        <% } %>    
       </ul>
     </div>
   </div>

@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const { User } = require("../models");
+const passport = require("../passport/setup");
 
 // страница с формой регистрации
 router.get("/register", (req, res) => {
@@ -60,46 +61,40 @@ router.get("/login", (req, res) => {
   });
 });
 
-// авторизация пользователя
-router.post("/login", async (req, res) => {
+// залогивание пользователя
+router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
 
-  try {
-    const user = await User.findOne({ email });
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
 
-    if (user) {
-      const areSame = await bcrypt.compare(password, user.passwordHash);
-
-      if (areSame) {
-        res.redirect("/");
-      } else {
-        res.render("user/login", {
-          title: "Вход",
-          btnTitle: "Войти",
-          user: { email, password },
-          error: "Неверный логин или пароль",
-        });
-      }
-    } else {
+    if (!user) {
       res.render("user/login", {
         title: "Вход",
         btnTitle: "Войти",
         user: { email, password },
-        error: "Пользователь не найден",
+        error: info?.message || "",
       });
     }
-  } catch (err) {
-    console.log(err);
 
-    res.render("user/login", {
-      title: "Вход",
-      btnTitle: "Войти",
-      user: { email, password },
-      error: "Ошибка авторизации",
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/");
     });
-  }
+  })(req, res, next);
 });
 
+// выход
+router.get("/logout", (req, res) => {
+  req.logout();
+  res.redirect("/");
+});
+
+// профиль
 router.get("/profile", (req, res) => {
   res.render("user/profile", {
     title: "Профиль пользователя",

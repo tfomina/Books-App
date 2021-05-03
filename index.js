@@ -4,8 +4,10 @@ const expressLayouts = require("express-ejs-layouts");
 const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
+const session = require("express-session");
 
 const notFoundMiddleware = require("./src/middleware/notFound");
+const passport = require("./src/passport/setup");
 
 const indexRouter = require("./src/routes");
 const userRouter = require("./src/routes/user");
@@ -15,6 +17,17 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    secret: process.env.COOKIE_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(expressLayouts);
 app.set("layout", "./layouts/index");

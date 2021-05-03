@@ -95,10 +95,23 @@ router.get("/logout", (req, res) => {
 });
 
 // профиль
-router.get("/profile", (req, res) => {
-  res.render("user/profile", {
-    title: "Профиль пользователя",
-  });
-});
+router.get(
+  "/profile",
+  (req, res, next) => {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      if (req.session) {
+        req.session.returnTo = req.originalUrl || req.url;
+      }
+      return res.redirect("/user/login");
+    }
+    next();
+  },
+  (req, res) => {
+    res.render("user/profile", {
+      title: "Профиль пользователя",
+      user: req.user,
+    });
+  }
+);
 
 module.exports = router;

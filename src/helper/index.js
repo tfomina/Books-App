@@ -10,4 +10,6 @@ const deleteFileFromDisk = (fileBook) => {
   }
 };
 
-module.exports = { deleteFileFromDisk };
+const requiredMessage = "Обязательное поле";
+
+module.exports = { deleteFileFromDisk, requiredMessage };

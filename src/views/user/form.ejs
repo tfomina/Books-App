@@ -1,0 +1,60 @@
+<form method="POST">
+  <% if(error){ %>
+  <div
+    class="alert alert alert-danger alert-dismissible fade show"
+    role="alert"
+  >
+    <%= error %>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  <% } %> 
+  
+  <% if(isRegisterForm){ %>
+  <div class="mb-3">
+    <label for="name" class="form-label">Имя пользователя</label>
+    <input
+      type="text"
+      class="form-control"
+      id="name"
+      name="name"
+      required
+      value="<%= user.name %>"
+    />
+  </div>
+  <% } %>
+
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input
+      type="email"
+      class="form-control"
+      id="email"
+      name="email"
+      required
+      value="<%= user.email %>"
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="password" class="form-label">Пароль</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password"
+      name="password"
+      required
+      value="<%= user.password %>"
+    />
+  </div>
+
+  <div class="mb-3 d-grid d-md-flex justify-content-md-end">
+    <button type="submit" class="btn btn-primary btn-block">
+      <%- btnTitle %>
+    </button>
+  </div>
+</form>

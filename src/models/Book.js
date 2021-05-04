@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const { requiredMessage } = require("../helper");
 
 const BookSchema = new Schema({
   title: {
     type: String,
-    required: [true, "Название обязательно"],
+    required: [true, requiredMessage],
   },
   description: String,
   authors: String,

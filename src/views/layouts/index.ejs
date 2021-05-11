@@ -16,8 +16,14 @@
     />
 
     <title><%- title %></title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   </head>
   <body>
+    <script>
+      const socket = io.connect("/");
+    </script>
+
     <div class="container container-xl">
       <%- include("../partials/menu") %>
 

@@ -82,6 +82,7 @@ router.get("/:id", async (req, res) => {
       title: "Просмотр книги",
       book: book,
       counter: counter,
+      currentUser: req.user,
     });
   } else {
     res.status(404).redirect("/404");

@@ -28,6 +28,38 @@ io.on("connection", (socket) => {
   });
 });
 
+/*io.on("connection", (socket) => {
+  const { id } = socket;
+  console.log(`Socket connected: ${id}`);
+
+  // сообщение себе
+  socket.on("message-to-me", (msg) => {
+    msg.type = "me";
+    socket.emit("message-to-me", msg);
+  });
+
+  // сообщение для всех
+  socket.on("message-to-all", (msg) => {
+    msg.type = "all";
+    socket.broadcast.emit("message-to-all", msg);
+    socket.emit("message-to-all", msg);
+  });
+
+  // работа с комнатами
+  const { roomName } = socket.handshake.query;
+  console.log(`Socket roomName: ${roomName}`);
+  socket.join(roomName);
+  socket.on("message-to-room", (msg) => {
+    msg.type = `room: ${roomName}`;
+    socket.to(roomName).emit("message-to-room", msg);
+    socket.emit("message-to-room", msg);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Socket disconnected: ${id}`);
+  });
+});*/
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -50,6 +82,10 @@ app.set("views", path.join(__dirname, "src", "views"));
 app.use(cors());
 
 app.use("/public", express.static(path.join(__dirname, "public")));
+
+// app.get("/", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "src", "index.html"));
+// });
 
 app.use("/", indexRouter);
 app.use("/user", userRouter);
@@ -80,7 +116,7 @@ const start = async () => {
       useUnifiedTopology: true,
     });*/
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (e) {

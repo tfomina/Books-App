@@ -27,6 +27,7 @@ io.on("connection", (socket) => {
   console.log(`Socket roomName: ${roomName}`);
   socket.join(roomName);
   socket.on("message-to-room", (msg) => {
+    console.log("msg ", msg);
     msg.type = `room: ${roomName}`;
     socket.to(roomName).emit("message-to-room", msg);
     socket.emit("message-to-room", msg);
@@ -35,6 +36,11 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Socket disconnected: ${id}`);
   });
+});
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
 });
 
 app.use(express.json());

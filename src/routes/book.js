@@ -211,6 +211,7 @@ router.get("/:id/download", async (req, res) => {
 router.post(
   "/addComment",
   /*isAuthenticatedMiddleware,*/ async (req, res) => {
+    const { io } = req;
     const { bookId, comment } = req.body;
     //const { user: currentUser } = req.user; // TODO Вернуть
 
@@ -219,28 +220,33 @@ router.post(
     try {
       const currentUser = await User.findById("608afcd8a30ec93248f9a4c1"); // TODO Убрать
 
-      await Book.findByIdAndUpdate(
+      const book = await Book.findByIdAndUpdate(
         { _id: bookId },
         {
           $push: {
             comments: { user: currentUser, text: comment, sentAt: currentDate },
           },
         },
-        { new: true, fields: { comments: { $slice: -1 } } },
-        (err, book) => {
-          if (err) {
-            res.send({
-              status: "error",
-            });
-            return;
-          }
-          socket.broadcast.to(bookId).emit("message-to-room", book.comments[0]);
-
-          res.send({
-            status: "ok",
-          });
+        {
+          new: true,
+          fields: {
+            comments: {
+              $slice: -1,
+            },
+          },
         }
-      );
+      ).populate({
+        path: "comments",
+        populate: { path: "user", select: "name" },
+      });
+
+      const newComment = book.comments[0];
+
+      io.emit("message-to-room", newComment);
+
+      res.send({
+        status: "ok",
+      });
     } catch (err) {
       console.log(err);
 

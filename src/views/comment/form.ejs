@@ -1,14 +1,75 @@
-<form method="POST">
+<form onsubmit="addComment();return false;">
   <div class="my-3">
     <label for="title" class="form-label">
       Добавьте комментарий
     </label>
-    <textarea class="form-control" id="text" name="text" rows="3"></textarea>
+    <div id="result"></div>
+    <textarea class="form-control" name="text" rows="3" id="comment"></textarea>   
   </div>
 
   <div class="mb-3 d-grid d-md-flex justify-content-md-end">
-    <button type="submit" class="btn btn-primary btn-block">
+    <button type="submit" class="btn btn-primary btn-block" id="submit">
       Отправить
     </button>
   </div>
 </form>
+
+<script>
+  const roomName = location.pathname.split('/').pop();
+  const socket = io.connect('/', {query: `roomName=${roomName}`});
+
+  const addComment = async () => {
+    const bookId = location.pathname.split("/").pop();
+    const comment = document.getElementById("comment").value;
+
+    if (!comment) return false;
+
+    document.getElementById("submit").setAttribute("disabled", "disabled");
+
+    try {
+      const result = await axios.post("/books/addComment", {
+        bookId,
+        comment,
+      });
+
+      const {
+        data: { status },
+      } = result;
+
+      if (status === "error") {
+        onError();
+      }
+      onSuccess();
+    } catch (e) {
+      onError();
+    }
+  };
+
+  const onSuccess = () => {
+    document.getElementById("comment").value = "";
+    document.getElementById("submit").removeAttribute("disabled");
+    document.getElementById("result").innerHTML= `<div class="alert alert alert-success alert-dismissible fade show" role="alert">
+        Комментарий успешно добавлен
+        <button
+        type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>` 
+  };
+
+  const onError = () => {
+    document.getElementById("submit").removeAttribute("disabled");
+    document.getElementById("result").innerHTML= `<div class="alert alert alert-danger alert-dismissible fade show" role="alert">
+        Ошибка при добавлении комментария
+        <button
+        type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>`    
+  };
+</script>
+

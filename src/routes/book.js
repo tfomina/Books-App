@@ -3,8 +3,9 @@ const router = express.Router();
 const path = require("path");
 const axios = require("axios");
 
-const { Book } = require("../models");
+const { Book, User } = require("../models");
 const fileMiddleware = require("../middleware/file");
+const isAuthenticatedMiddleware = require("../middleware/isAuthenticated");
 const { deleteFileFromDisk } = require("../helper");
 
 // получить все книги
@@ -62,21 +63,25 @@ router.get("/:id", async (req, res) => {
   let book, counter;
 
   try {
-    book = await Book.findById(id);
+    book = await Book.findById(id).populate({
+      path: "comments",
+      populate: { path: "user", select: "name" },
+    });
   } catch (err) {
     console.log(err);
   }
 
   if (book) {
-    try {
-      const baseUrl = `http://${process.env.COUNTER_SERVER_HOST}:${process.env.COUNTER_SERVER_PORT}/counter/`;
+    // Работает только в Docker контейнере
+    // try {
+    //   const baseUrl = `http://${process.env.COUNTER_SERVER_HOST}:${process.env.COUNTER_SERVER_PORT}/counter/`;
 
-      await axios.post(`${baseUrl}/${book.id}/incr`); // добавить +1 к счетчику
-      const response = await axios.get(`${baseUrl}/${book.id}`); // получить счетчик
-      counter = response.data?.counter;
-    } catch (err) {
-      console.log(err);
-    }
+    //   await axios.post(`${baseUrl}/${book.id}/incr`); // добавить +1 к счетчику
+    //   const response = await axios.get(`${baseUrl}/${book.id}`); // получить счетчик
+    //   counter = response.data?.counter;
+    // } catch (err) {
+    //   console.log(err);
+    // }
 
     res.render("books/view", {
       title: "Просмотр книги",
@@ -201,5 +206,49 @@ router.get("/:id/download", async (req, res) => {
     res.status(404).redirect("/404");
   }
 });
+
+// Добавить комментарий
+router.post(
+  "/addComment",
+  /*isAuthenticatedMiddleware,*/ async (req, res) => {
+    const { bookId, comment } = req.body;
+    //const { user: currentUser } = req.user; // TODO Вернуть
+
+    const currentDate = new Date().toISOString();
+
+    try {
+      const currentUser = await User.findById("608afcd8a30ec93248f9a4c1"); // TODO Убрать
+
+      await Book.findByIdAndUpdate(
+        { _id: bookId },
+        {
+          $push: {
+            comments: { user: currentUser, text: comment, sentAt: currentDate },
+          },
+        },
+        { new: true, fields: { comments: { $slice: -1 } } },
+        (err, book) => {
+          if (err) {
+            res.send({
+              status: "error",
+            });
+            return;
+          }
+          socket.broadcast.to(bookId).emit("message-to-room", book.comments[0]);
+
+          res.send({
+            status: "ok",
+          });
+        }
+      );
+    } catch (err) {
+      console.log(err);
+
+      res.send({
+        status: "error",
+      });
+    }
+  }
+);
 
 module.exports = router;

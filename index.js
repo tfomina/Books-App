@@ -66,10 +66,6 @@ app.use(cors());
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-// app.get("/", (req, res) => {
-//   res.sendFile(path.resolve(__dirname, "src", "index.html"));
-// });
-
 app.use("/", indexRouter);
 app.use("/user", userRouter);
 app.use("/books", bookRouter);

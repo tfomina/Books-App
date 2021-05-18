@@ -166,7 +166,7 @@ router.post("/delete/:id", async (req, res) => {
 
     // удаление записи из БД
     try {
-      await Book.deleteOne({ _id: id });
+      await Book.findByIdAndDelete(id);
     } catch (err) {
       console.error(err);
     }
